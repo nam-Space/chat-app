@@ -1,0 +1,48 @@
+import { formatRelative } from 'date-fns/esm'
+import React, { useContext, useEffect, useRef } from 'react'
+import { AuthContext } from '../context/AuthContext'
+import { ChatContext } from '../context/ChatContext'
+
+const Message = ({message}) => {
+	const {currentUser} = useContext(AuthContext)
+	const {data} = useContext(ChatContext)
+
+	const ref = useRef()
+
+	useEffect(() => {
+		ref.current.scrollIntoView({behavior: 'smooth', block: 'end'})
+	}, [message])
+
+	const formattedDate = (seconds) => {
+		let formattedDate = ''
+
+		if (seconds) {
+			formattedDate = formatRelative(new Date(seconds * 1000), new Date())
+
+			formattedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1)
+		}
+		return formattedDate
+	} 
+
+	return (
+		<div 
+			ref={ref}
+			className={`message ${message.senderId === currentUser.uid && 'owner'}`}
+		>
+		
+			<div className="messageInfo">
+				<img 
+					src={message.senderId === currentUser.uid ? currentUser.photoURL : data.user.photoURL}
+					alt="" 
+				/>
+				<span>{formattedDate(message.date.seconds)}</span>
+			</div>
+			<div className="messageContent">
+				{message.text && <p>{message.text}</p>}
+				{message.img && <img src={message.img} alt="" />}
+			</div>
+		</div>
+	)
+}
+
+export default Message
